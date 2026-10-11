@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Memoria — a gentle memory companion</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito:wght@500;700;800&family=Noto+Sans+Devanagari:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F6EFFC; --surface:#FFFFFF; --surface2:#EFE4FA; --text:#1A0B2E; --muted:#5E4C7C; --border:#D9C6EE;
+  --accent:#F7A12B; --accent-ink:#1A0B2E; --accent-soft:#FFE9C7; --primary:#4B1F8F; --primary-ink:#FFFFFF;
+  --good:#1F7A4D; --good-soft:#DDF3E6; --warn:#8A5200; --warn-soft:#FFEFC9; --bad:#B3261E; --bad-soft:#FBE0DD;
+  --chart:#B45F00; --shadow:0 6px 20px rgba(43,20,80,.12);
+  color-scheme:light;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#1A0B2E; --surface:#2B1450; --surface2:#3A1D6B; --text:#F6EEFF; --muted:#C2AEE3; --border:#4F2F85;
+    --accent:#F7A12B; --accent-ink:#1A0B2E; --accent-soft:#4A3010; --primary:#8D5CE0; --primary-ink:#FFFFFF;
+    --good:#6FD9A0; --good-soft:#12382A; --warn:#FFD27A; --warn-soft:#4A3510; --bad:#FF8F86; --bad-soft:#4D1C1A;
+    --chart:#F7A12B; --shadow:0 6px 20px rgba(0,0,0,.4); color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1A0B2E; --surface:#2B1450; --surface2:#3A1D6B; --text:#F6EEFF; --muted:#C2AEE3; --border:#4F2F85;
+  --accent:#F7A12B; --accent-ink:#1A0B2E; --accent-soft:#4A3010; --primary:#8D5CE0; --primary-ink:#FFFFFF;
+  --good:#6FD9A0; --good-soft:#12382A; --warn:#FFD27A; --warn-soft:#4A3510; --bad:#FF8F86; --bad-soft:#4D1C1A;
+  --chart:#F7A12B; --shadow:0 6px 20px rgba(0,0,0,.4); color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--text);font:500 18px/1.55 'Nunito','Noto Sans Devanagari',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:'Fraunces',Georgia,'Noto Sans Devanagari',serif;line-height:1.2;margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.wrap{max-width:980px;margin:0 auto;padding:16px}
+
+/* header */
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--border)}
+header.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:10px;padding-bottom:10px}
+.brand{display:flex;align-items:center;gap:10px;font:700 24px 'Fraunces',Georgia,serif}
+.seg{display:inline-flex;background:var(--surface2);border-radius:999px;padding:4px;gap:2px}
+.seg button{border:0;background:transparent;padding:8px 16px;border-radius:999px;font-weight:800;font-size:16px;color:var(--muted);min-height:40px}
+.seg button[aria-pressed="true"]{background:var(--primary);color:var(--primary-ink)}
+
+/* buttons */
+.btn{border:2px solid var(--border);background:var(--surface);border-radius:16px;padding:12px 20px;font-weight:800;min-height:48px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.dark{background:var(--primary);border-color:var(--primary);color:var(--primary-ink)}
+.btn.big{min-height:68px;font-size:26px;padding:12px 32px;border-radius:20px}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.btn.sm{min-height:40px;padding:6px 14px;font-size:15px;border-radius:12px}
+.btn:disabled{opacity:.5;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.center{text-align:center}
+
+/* patient home */
+.hello{padding:20px 0 8px;text-align:center}
+.hello h1{font-size:clamp(34px,7vw,52px)}
+.lead{font-size:clamp(20px,3.6vw,26px);color:var(--muted);margin:8px 0 14px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px;margin-top:12px}
+.tile{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;background:var(--surface);border:3px solid var(--border);border-radius:28px;padding:28px 18px;box-shadow:var(--shadow);min-height:230px;justify-content:center}
+.tile:hover{border-color:var(--accent)}
+.tile .ic{font-size:64px;line-height:1}
+.tile .tt{font:700 30px 'Fraunces',Georgia,'Noto Sans Devanagari',serif}
+.tile .ts{font-size:20px;color:var(--muted)}
+
+/* games */
+.game{max-width:720px;margin:0 auto;padding-bottom:40px}
+.gtop{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:6px 0 10px}
+.dots{display:flex;gap:8px;justify-content:center;margin:6px 0 14px}
+.dots i{width:14px;height:14px;border-radius:50%;background:var(--border)}
+.dots i.on{background:var(--accent)}
+.dots i.now{outline:3px solid var(--primary);outline-offset:2px}
+.q{font-size:clamp(30px,6vw,44px);text-align:center;margin:8px 0 14px}
+.photo{width:min(78vw,340px);aspect-ratio:1;margin:0 auto 14px;border-radius:32px;overflow:hidden;border:6px solid var(--surface);box-shadow:var(--shadow);background:var(--surface2)}
+.photo img{width:100%;height:100%;object-fit:cover;display:block}
+.hint{text-align:center;font-size:22px;color:var(--muted);margin:0 0 12px}
+.opts{display:grid;gap:14px;margin:8px 0 16px}
+.opt{min-height:78px;border:3px solid var(--border);background:var(--surface);border-radius:22px;font:800 clamp(26px,5vw,34px) 'Nunito','Noto Sans Devanagari',sans-serif;padding:10px 16px}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt:disabled{opacity:1;cursor:default}
+.opt.right{background:var(--good-soft);border-color:var(--good)}
+.opt.chosen{border-color:var(--primary);border-style:dashed}
+.fb{text-align:center;font-size:clamp(22px,4vw,28px);font-weight:800;padding:14px 16px;border-radius:20px;margin:6px 0 14px}
+.fb.good{background:var(--good-soft);color:var(--good)}
+.fb.soft{background:var(--accent-soft);color:var(--text)}
+.fb.info{background:var(--surface2);color:var(--text)}
+
+/* memory match */
+.mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:12px;max-width:640px;margin:10px auto 16px}
+.mc{position:relative;aspect-ratio:1;border-radius:20px;border:3px solid var(--border);background:var(--primary);color:var(--primary-ink);padding:0;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.mc .face{display:none;width:100%;height:100%;align-items:center;justify-content:center;background:var(--surface);color:var(--text);text-align:center;font-weight:800;font-size:clamp(16px,3.6vw,24px);padding:4px;word-break:break-word}
+.mc .face img{width:100%;height:100%;object-fit:cover;display:block}
+.mc .back{font:700 40px 'Fraunces',Georgia,serif;opacity:.85}
+.mc.open .face{display:flex}.mc.open .back{display:none}
+.mc.open{border-color:var(--accent)}
+.mc.done{border-color:var(--good);box-shadow:0 0 0 3px var(--good-soft)}
+.mc:disabled{opacity:1;cursor:default}
+
+/* routine */
+.slots{display:flex;flex-direction:column;gap:10px;margin:8px 0 16px}
+.slot{display:flex;align-items:center;gap:14px;background:var(--good-soft);border:3px solid var(--good);border-radius:20px;padding:12px 16px;font:800 clamp(22px,4.6vw,30px) 'Nunito','Noto Sans Devanagari',sans-serif}
+.slot b{display:inline-grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--good);color:var(--bg);font-size:20px;flex:none}
+.step{min-height:76px;border:3px solid var(--border);background:var(--surface);border-radius:22px;font:800 clamp(24px,5vw,32px) 'Nunito','Noto Sans Devanagari',sans-serif;padding:10px 16px}
+.step:hover{border-color:var(--accent)}
+.step.hint{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+.rtitle{text-align:center;color:var(--muted);font-weight:800;font-size:20px;margin:0}
+.stars{font-size:64px;letter-spacing:8px;color:var(--accent);text-align:center;margin:10px 0}
+.stars span.off{color:var(--border)}
+@keyframes pop{from{transform:scale(.92);opacity:.5}to{transform:scale(1);opacity:1}}
+.fb,.mc.open,.slot{animation:pop .25s ease-out}
+@media (prefers-reduced-motion:reduce){.fb,.mc.open,.slot{animation:none}}
+
+/* caregiver */
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:4px 0 12px;scrollbar-width:thin}
+.tabs button{border:2px solid var(--border);background:var(--surface);border-radius:999px;padding:8px 18px;font-weight:800;font-size:16px;white-space:nowrap;min-height:42px}
+.tabs button[aria-pressed="true"]{background:var(--primary);color:var(--primary-ink);border-color:var(--primary)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:18px;box-shadow:var(--shadow);margin-bottom:16px}
+.card h2{font-size:22px;margin-bottom:4px}
+.card h3{font-size:18px;margin-bottom:6px}
+.muted{color:var(--muted)}
+.small{font-size:15px}
+.banner{border-radius:20px;padding:16px 18px;margin-bottom:16px;border:2px solid}
+.banner h2{font-size:22px;margin-bottom:4px}
+.banner.decline{background:var(--bad-soft);border-color:var(--bad)}
+.banner.decline h2{color:var(--bad)}
+.banner.dip{background:var(--warn-soft);border-color:var(--warn)}
+.banner.dip h2{color:var(--warn)}
+.banner.steady{background:var(--good-soft);border-color:var(--good)}
+.banner.steady h2{color:var(--good)}
+.banner.none{background:var(--surface2);border-color:var(--border)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:14px 16px}
+.stat .k{font-size:14px;color:var(--muted);font-weight:800}
+.stat .v{font:700 34px 'Fraunces',Georgia,serif;line-height:1.1}
+.stat .d{font-size:14px;color:var(--muted)}
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.chart{width:100%;height:auto;display:block}
+.chart .grid{stroke:var(--border);stroke-width:1}
+.chart text{fill:var(--muted);font:700 12px 'Nunito',sans-serif}
+.chart .val{fill:var(--text);font-size:14px;font-weight:800}
+.chart .ln{stroke:var(--chart);stroke-width:3;fill:none;stroke-linejoin:round}
+.chart .pt{fill:var(--chart);stroke:var(--surface);stroke-width:2}
+.chart .al{stroke:var(--bad);stroke-width:2;stroke-dasharray:6 5}
+.chart .alt{fill:var(--bad)}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:16px}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
+th{color:var(--muted);font-size:14px}
+.paper{white-space:pre-wrap;word-break:break-word;background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:16px;font:500 16px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;margin:12px 0}
+.people{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin:12px 0}
+.person{border:1px solid var(--border);border-radius:16px;overflow:hidden;background:var(--bg)}
+.person img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
+.person div{padding:8px 10px}
+.person b{display:block}
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.field label{font-weight:800;font-size:15px}
+input[type=text],textarea{font:inherit;color:var(--text);background:var(--bg);border:2px solid var(--border);border-radius:12px;padding:10px 12px;width:100%}
+textarea{min-height:120px;resize:vertical}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.prev{width:84px;height:84px;border-radius:16px;object-fit:cover;border:2px solid var(--border);background:var(--surface2)}
+.rl{border:1px solid var(--border);border-radius:14px;padding:12px;margin-bottom:10px;background:var(--bg)}
+.rl ol{margin:6px 0 10px;padding-left:22px}
+footer.foot{max-width:980px;margin:0 auto;padding:8px 16px 40px;color:var(--muted);font-size:14px;text-align:center}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 18px;border-radius:999px;font-weight:800;font-size:16px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20;max-width:90vw;text-align:center}
+#toast.show{opacity:1}
+@media print{
+  header.top,.tabs,.no-print,footer.foot{display:none!important}
+  body{background:#fff;color:#000}
+  .paper{background:#fff;border:0;color:#000}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <svg viewBox="0 0 40 40" width="34" height="34" aria-hidden="true"><g fill="#F7A12B"><circle cx="20" cy="9" r="7"/><circle cx="30.5" cy="16.6" r="7"/><circle cx="26.5" cy="29" r="7"/><circle cx="13.5" cy="29" r="7"/><circle cx="9.5" cy="16.6" r="7"/></g><circle cx="20" cy="20" r="5" fill="#4B1F8F"/></svg>
+      Memoria
+    </div>
+    <div class="seg" role="group" aria-label="Who is using Memoria">
+      <button data-act="mode" data-mode="patient" aria-pressed="true">Patient</button>
+      <button data-act="mode" data-mode="caregiver" aria-pressed="false">Caregiver</button>
+    </div>
+  </div>
+</header>
+<main id="app" class="wrap"></main>
+<footer class="foot">Prototype for Codearambh 2.0 · Support, not diagnosis — Memoria is not a medical device · Demo people and history are fictional</footer>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- helpers ---------- */
+const GAMES=['recall','pairs','routine'];
+const GN={recall:'Photo recall',pairs:'Memory match',routine:'Daily routine'};
+const DAY=864e5;
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,9);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0;
+function shuffle(a,r){r=r||Math.random;a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+const fmtD=d=>new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+const $=(s,r)=>(r||document).querySelector(s);
+
+/* ---------- avatars for demo people (no real photos shipped) ---------- */
+function avatar(o){
+  const back=o.style==='long'?`<ellipse cx='100' cy='96' rx='52' ry='60' fill='${o.hair}'/>`:'';
+  const bun=o.style==='bun'?`<circle cx='100' cy='40' r='20' fill='${o.hair}'/>`:'';
+  const svg=`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><rect width='200' height='200' fill='${o.bg}'/>${back}${bun}<path d='M20 200 C20 152 60 138 100 138 C140 138 180 152 180 200Z' fill='${o.cloth}'/><rect x='88' y='118' width='24' height='26' rx='10' fill='${o.skin}'/><circle cx='100' cy='96' r='38' fill='${o.skin}'/><path d='M52 90 C48 38 152 38 148 90 C140 66 112 58 100 58 C88 58 60 66 52 90Z' fill='${o.hair}'/><circle cx='87' cy='100' r='4' fill='#2B1450'/><circle cx='113' cy='100' r='4' fill='#2B1450'/><path d='M86 116 Q100 128 114 116' stroke='#2B1450' stroke-width='4' fill='none' stroke-linecap='round'/></svg>`;
+  return 'data:image/svg+xml;utf8,'+encodeURIComponent(svg);
+}
+const PALETTE=[{bg:'#FFD27A',cloth:'#4B1F8F'},{bg:'#F6B7C4',cloth:'#E5645A'},{bg:'#BFE3D0',cloth:'#2B1450'},{bg:'#CDBBF2',cloth:'#F7A12B'}];
+function placeholderAvatar(name){let h=0;for(const c of name)h=(h*31+c.charCodeAt(0))>>>0;const p=PALETTE[h%4];return avatar({bg:p.bg,cloth:p.cloth,skin:['#C98E66','#D9A07A','#B9805A'][h%3],hair:['#2B1450','#3A2A1A','#6B6575'][(h>>2)%3],style:['short','long','bun'][(h>>4)%3]});}
+
+/* ---------- storage (localStorage, with in-memory fallback) ---------- */
+const KEY='memoria:v1';
+function seed(){
+  return {v:1,
+    patient:{name:'Savitri',lang:'en',voice:true},
+    people:[
+      {id:'p1',name:'Rohan',rel:'Son',relHi:'बेटा',photo:avatar({bg:'#FFD27A',cloth:'#4B1F8F',skin:'#C98E66',hair:'#2B1450',style:'short'}),demo:1},
+      {id:'p2',name:'Meera',rel:'Daughter',relHi:'बेटी',photo:avatar({bg:'#F6B7C4',cloth:'#E5645A',skin:'#D9A07A',hair:'#2B1450',style:'long'}),demo:1},
+      {id:'p3',name:'Aarav',rel:'Grandson',relHi:'पोता',photo:avatar({bg:'#BFE3D0',cloth:'#F7A12B',skin:'#C98E66',hair:'#3A2A1A',style:'short'}),demo:1},
+      {id:'p4',name:'Kamla',rel:'Sister',relHi:'बहन',photo:avatar({bg:'#CDBBF2',cloth:'#2B1450',skin:'#D9A07A',hair:'#E8E3EE',style:'bun'}),demo:1},
+      {id:'p5',name:'Sunil',rel:'Neighbour',relHi:'पड़ोसी',photo:avatar({bg:'#FFE1B0',cloth:'#1F7A4D',skin:'#B9805A',hair:'#9C9AA5',style:'short'}),demo:1},
+      {id:'p6',name:'Anita',rel:'Daughter-in-law',relHi:'बहू',photo:avatar({bg:'#F6B7C4',cloth:'#4B1F8F',skin:'#D9A07A',hair:'#3A2A1A',style:'long'}),demo:1}
+    ],
+    routines:[
+      {id:'r1',title:'Morning routine',steps:[{t:'Wake up',hi:'उठना'},{t:'Brush teeth',hi:'ब्रश करना'},{t:'Have a bath',hi:'नहाना'},{t:'Eat breakfast',hi:'नाश्ता करना'},{t:'Go for a walk',hi:'सैर पर जाना'}]},
+      {id:'r2',title:'Making tea',steps:[{t:'Boil water',hi:'पानी उबालना'},{t:'Add tea leaves',hi:'चायपत्ती डालना'},{t:'Add milk and sugar',hi:'दूध और चीनी डालना'},{t:'Strain into a cup',hi:'कप में छानना'},{t:'Enjoy the tea',hi:'चाय पीना'}]}
+    ],
+    levels:{recall:1,pairs:1,routine:1},
+    log:[]};
+}
+let db=null;
+try{const r=localStorage.getItem(KEY);if(r)db=JSON.parse(r);}catch(e){}
+if(!db||!db.patient)db=seed();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){toast('Could not save — storage may be full or blocked.');}}
+save();
+
+/* ---------- text strings (patient-facing) ---------- */
+const T={
+ en:{hello:n=>`Hello, ${n}`,choose:'What would you like to do today?',
+  recall:'Who is this?',recallSub:'Look at the photo and pick the name',
+  pairs:'Memory match',pairsSub:'Find each photo and its name',
+  routine:'My day',routineSub:'Put the steps in order',
+  back:'Back',home:'Home',again:'Play again',next:'Next',sayAgain:'Say it again',hint:'Hint',
+  who:'Who is this?',yesName:n=>`Yes! This is ${n}. Well done!`,softName:n=>`That's alright. This is ${n}.`,
+  pairsIntro:'Look carefully. Remember who is where.',pairsGo:'Now find the matching pairs.',
+  pairsMatch:'A match! Lovely.',pairsTry:"Not a match. That's alright, try again.",
+  rFirst:'What comes first?',rNext:'What comes next?',rYes:'Yes!',rSoft:'Not yet. Try another one.',rDone:'Wonderful! Everything is in order.',
+  finish:n=>`Lovely work, ${n}!`,startNow:"I'm ready",seconds:'seconds',
+  needTitle:'Let’s get ready first',need:'Please ask a family member to add a few photos and routines.',openCare:'Open caregiver view',
+  voiceOn:'Voice on',voiceOff:'Voice off'},
+ hi:{hello:n=>`नमस्ते, ${n}`,choose:'आज आप क्या करना चाहेंगे?',
+  recall:'यह कौन है?',recallSub:'फ़ोटो देखिए और नाम चुनिए',
+  pairs:'याददाश्त का खेल',pairsSub:'हर फ़ोटो को उसके नाम से मिलाइए',
+  routine:'मेरा दिन',routineSub:'काम सही क्रम में लगाइए',
+  back:'वापस',home:'घर',again:'फिर से खेलें',next:'आगे',sayAgain:'फिर सुनें',hint:'संकेत',
+  who:'यह कौन है?',yesName:n=>`बिल्कुल सही! यह ${n} हैं। शाबाश!`,softName:n=>`कोई बात नहीं। यह ${n} हैं।`,
+  pairsIntro:'ध्यान से देखिए। याद रखिए कौन कहाँ है।',pairsGo:'अब जोड़ियाँ ढूँढिए।',
+  pairsMatch:'वाह! जोड़ी मिल गई।',pairsTry:'कोई बात नहीं, फिर कोशिश कीजिए।',
+  rFirst:'सबसे पहले क्या होता है?',rNext:'उसके बाद क्या आता है?',rYes:'सही!',rSoft:'अभी नहीं। दूसरा चुनिए।',rDone:'बहुत बढ़िया! सब सही क्रम में है।',
+  finish:n=>`बहुत अच्छा, ${n}!`,startNow:'मैं तैयार हूँ',seconds:'सेकंड',
+  needTitle:'पहले तैयारी करते हैं',need:'कृपया परिवार के किसी सदस्य से कुछ फ़ोटो और दिनचर्या जुड़वाइए।',openCare:'देखभालकर्ता दृश्य खोलें',
+  voiceOn:'आवाज़ चालू',voiceOff:'आवाज़ बंद'}
+};
+const tt=()=>T[db.patient.lang]||T.en;
+const relText=p=>db.patient.lang==='hi'&&p.relHi?p.relHi:p.rel;
+const stepText=s=>db.patient.lang==='hi'&&s.hi?s.hi:s.t;
+
+/* ---------- speech ---------- */
+let voices=[];
+function loadVoices(){try{voices=speechSynthesis.getVoices();}catch(e){}}
+if('speechSynthesis' in window){loadVoices();try{speechSynthesis.onvoiceschanged=loadVoices;}catch(e){}}
+function pickVoice(lang){const c=lang==='hi'?'hi':'en';return voices.find(v=>v.lang.toLowerCase().replace('_','-').startsWith(c+'-in'))||voices.find(v=>v.lang.toLowerCase().startsWith(c))||null;}
+function say(text,force){
+  if(!text||!('speechSynthesis' in window))return;
+  if(!force&&!db.patient.voice)return;
+  try{
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);const l=db.patient.lang;
+    u.lang=l==='hi'?'hi-IN':'en-IN';const v=pickVoice(l);if(v)u.voice=v;u.rate=.85;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+/* ---------- toast & timers ---------- */
+let toastT;
+function toast(m){const el=$('#toast');el.textContent=m;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2600);}
+const timers=new Set();
+function later(fn,ms){const id=setTimeout(()=>{timers.delete(id);fn();},ms);timers.add(id);return id;}
+function clearTimers(){timers.forEach(clearTimeout);timers.clear();}
+
+/* ---------- state ---------- */
+const view={mode:'patient',screen:'home',tab:'overview',prompt:''};
+let G=null;
+const draft={};
+const armed={};
+const app=$('#app');
+
+function go(screen){
+  clearTimers();try{speechSynthesis.cancel();}catch(e){}
+  view.screen=screen;render();window.scrollTo(0,0);
+}
+
+/* ---------- logging & adaptive difficulty ---------- */
+function logAnswer(g,ok,rt){
+  db.log.push({t:Date.now(),g,ok:ok?1:0,rt:Math.round(rt),lv:G.lv,s:G.sid});
+  if(db.log.length>3000)db.log=db.log.slice(-3000);
+  save();
+}
+// Simple, explainable rule: last 10 answers of this game.
+// Level up if accuracy >= 85% and average response <= 5.5 s; level down if accuracy < 55% or response > 9.5 s.
+function adapt(g){
+  const es=db.log.filter(e=>e.g===g).slice(-10);if(es.length<5)return;
+  const acc=avg(es.map(e=>e.ok)),rt=avg(es.map(e=>e.rt));
+  let lv=db.levels[g]||1;
+  if(acc>=.85&&rt<=5500&&lv<3)lv++;
+  else if((acc<.55||rt>9500)&&lv>1)lv--;
+  db.levels[g]=lv;save();
+}
+function finishGame(ratio){adapt(G.g);G.ratio=ratio;go('done');}
+
+/* ---------- PATIENT: game starters ---------- */
+function startRecall(){
+  const ps=db.people;if(ps.length<2)return go('need');
+  const lv=db.levels.recall||1,nOpt=Math.min(lv+1,ps.length);
+  let pool=[];while(pool.length<14)pool=pool.concat(shuffle(ps));
+  const picks=[];for(const p of pool){if(picks.length===5)break;if(picks.length&&picks[picks.length-1].id===p.id)continue;picks.push(p);}
+  const qs=picks.map(p=>({p,opts:shuffle([p].concat(shuffle(ps.filter(x=>x.id!==p.id)).slice(0,nOpt-1))),done:false}));
+  G={g:'recall',sid:uid(),lv,qs,i:0,ok:0};qs[0].t0=Date.now();
+  view.screen='recall';render();say(tt().who);
+}
+function startPairs(){
+  const ps=db.people;if(ps.length<2)return go('need');
+  const lv=db.levels.pairs||1,n=Math.min([3,4,6][lv-1],ps.length);
+  const chosen=shuffle(ps).slice(0,n);let cards=[];
+  chosen.forEach(p=>{cards.push({pid:p.id,kind:'photo',name:p.name,photo:p.photo});cards.push({pid:p.id,kind:'name',name:p.name});});
+  G={g:'pairs',sid:uid(),lv,cards:shuffle(cards),phase:'preview',left:[6,5,5][lv-1],flipped:[],matched:new Set(),att:0,ok:0,msg:'',lock:false};
+  view.screen='pairs';render();say(tt().pairsIntro);tickPreview();
+}
+function tickPreview(){
+  later(()=>{if(!G||G.phase!=='preview')return;G.left--;if(G.left<=0)beginPlay();else{render();tickPreview();}},1000);
+}
+function beginPlay(){clearTimers();G.phase='play';G.t0=Date.now();render();say(tt().pairsGo);}
+function startRoutine(){
+  const rs=db.routines.filter(r=>r.steps.length>=3);if(!rs.length)return go('need');
+  const lv=db.levels.routine||1,len=lv+2,rounds=[];let last=null;
+  for(let k=0;k<2;k++){
+    const opts=rs.length>1?rs.filter(r=>r.id!==last):rs;const r=opts[Math.floor(Math.random()*opts.length)];last=r.id;
+    const L=Math.min(len,r.steps.length),st=Math.floor(Math.random()*(r.steps.length-L+1));
+    const steps=r.steps.slice(st,st+L).map((s,i)=>({t:s.t,hi:s.hi,idx:i}));
+    let order=shuffle(steps),tries=0;while(order.every((s,i)=>s.idx===i)&&tries++<8)order=shuffle(steps);
+    rounds.push({title:r.title,steps,order,placed:[],wrong:0,done:false,msg:'',t0:Date.now()});
+  }
+  G={g:'routine',sid:uid(),lv,rounds,r:0,ok:0,att:0};
+  view.screen='routine';render();say(tt().rFirst);
+}
+
+/* ---------- PATIENT: rendering ---------- */
+function topbar(){
+  const t=tt();
+  return `<div class="gtop"><button class="btn" data-act="home">← ${t.back}</button><button class="btn" data-act="say" aria-label="${esc(t.sayAgain)}">🔊 ${t.sayAgain}</button></div>`;
+}
+function renderPatient(){
+  const t=tt(),name=esc(db.patient.name);
+  const s=view.screen;
+  if(s==='home'){
+    view.prompt=t.hello(db.patient.name)+'. '+t.choose;
+    app.innerHTML=`<section>
+      <div class="hello"><h1>${esc(t.hello(db.patient.name))}</h1><p class="lead">${t.choose}</p>
+        <div class="row" style="justify-content:center"><button class="btn" data-act="say">🔊 ${t.sayAgain}</button><button class="btn" data-act="voice" aria-pressed="${db.patient.voice}">${db.patient.voice?'🔈 '+t.voiceOn:'🔇 '+t.voiceOff}</button></div></div>
+      <div class="tiles">
+        <button class="tile" data-act="play" data-g="recall"><span class="ic" aria-hidden="true">📷</span><span class="tt">${t.recall}</span><span class="ts">${t.recallSub}</span></button>
+        <button class="tile" data-act="play" data-g="pairs"><span class="ic" aria-hidden="true">🃏</span><span class="tt">${t.pairs}</span><span class="ts">${t.pairsSub}</span></button>
+        <button class="tile" data-act="play" data-g="routine"><span class="ic" aria-hidden="true">☀️</span><span class="tt">${t.routine}</span><span class="ts">${t.routineSub}</span></button>
+      </div></section>`;
+  }else if(s==='recall')rRecall();
+  else if(s==='pairs')rPairs();
+  else if(s==='routine')rRoutine();
+  else if(s==='done'){
+    const r=G?G.ratio:1,n=r>=.8?3:r>=.5?2:1;
+    view.prompt=t.finish(db.patient.name);
+    app.innerHTML=`<section class="game center"><h1 style="font-size:clamp(32px,7vw,48px);margin:30px 0 6px">${esc(t.finish(db.patient.name))}</h1>
+      <div class="stars" aria-label="${n} of 3 stars">${[1,2,3].map(i=>`<span class="${i<=n?'':'off'}">★</span>`).join('')}</div>
+      <div class="row" style="justify-content:center;margin-top:18px"><button class="btn big primary" data-act="again">${t.again}</button><button class="btn big" data-act="home">${t.home}</button></div></section>`;
+    say(view.prompt);
+  }else if(s==='need'){
+    view.prompt=t.need;
+    app.innerHTML=`<section class="game center"><h2 style="margin:30px 0 10px;font-size:34px">${t.needTitle}</h2><p class="lead">${t.need}</p>
+      <div class="row" style="justify-content:center"><button class="btn big" data-act="home">${t.home}</button><button class="btn big primary" data-act="mode" data-mode="caregiver">${t.openCare}</button></div></section>`;
+  }
+}
+function dotsHtml(total,i){let h='';for(let k=0;k<total;k++)h+=`<i class="${k<i?'on':''} ${k===i?'now':''}"></i>`;return `<div class="dots" aria-label="Question ${i+1} of ${total}">${h}</div>`;}
+function rRecall(){
+  const t=tt(),q=G.qs[G.i];view.prompt=t.who;
+  app.innerHTML=`<section class="game">${topbar()}${dotsHtml(G.qs.length,G.i)}
+    <h2 class="q">${t.who}</h2>
+    <div class="photo"><img src="${q.p.photo}" alt="Photo of a family member"></div>
+    ${G.lv===1&&q.p.rel?`<p class="hint">${t.hint}: ${esc(relText(q.p))}</p>`:''}
+    <div class="opts">${q.opts.map(o=>`<button class="opt ${q.done&&o.id===q.p.id?'right':''} ${q.done&&q.pick===o.id&&o.id!==q.p.id?'chosen':''}" data-act="pick" data-id="${o.id}" ${q.done?'disabled':''}>${esc(o.name)}</button>`).join('')}</div>
+    ${q.done?`<div class="fb ${q.ok?'good':'soft'}">${esc(q.msg)}</div><div class="center"><button class="btn big primary" data-act="next">${t.next} →</button></div>`:''}
+  </section>`;
+}
+function rPairs(){
+  const t=tt();
+  let banner='';
+  if(G.phase==='preview'){view.prompt=t.pairsIntro;banner=`<div class="fb info">${t.pairsIntro}<br><span class="small">${G.left} ${t.seconds}</span></div><div class="center" style="margin-bottom:10px"><button class="btn big primary" data-act="pstart">${t.startNow}</button></div>`;}
+  else{view.prompt=t.pairsGo;banner=`<div class="fb ${G.msg===t.pairsMatch?'good':'info'}">${esc(G.msg||t.pairsGo)}</div>`;}
+  app.innerHTML=`<section class="game">${topbar()}${banner}
+    <div class="mgrid">${G.cards.map((c,i)=>{
+      const open=G.phase==='preview'||G.flipped.includes(i)||G.matched.has(i);
+      const face=c.kind==='photo'?`<img src="${c.photo}" alt="Photo card">`:`<span>${esc(c.name)}</span>`;
+      return `<button class="mc ${open?'open':''} ${G.matched.has(i)?'done':''}" data-act="flip" data-i="${i}" ${G.phase!=='play'?'disabled':''} aria-label="${open?(c.kind==='photo'?'Photo card':esc(c.name)):'Hidden card'}"><span class="back" aria-hidden="true">?</span><span class="face">${face}</span></button>`;
+    }).join('')}</div></section>`;
+}
+function rRoutine(){
+  const t=tt(),rd=G.rounds[G.r],exp=rd.steps[rd.placed.length];
+  view.prompt=rd.done?t.rDone:(rd.placed.length===0?t.rFirst:t.rNext);
+  const remain=rd.order.filter(s=>!rd.placed.some(p=>p.idx===s.idx));
+  app.innerHTML=`<section class="game">${topbar()}
+    <p class="rtitle">${esc(rd.title)} · ${G.r+1}/${G.rounds.length}</p>
+    <h2 class="q">${rd.done?t.rDone:(rd.placed.length===0?t.rFirst:t.rNext)}</h2>
+    <div class="slots">${rd.placed.map((s,i)=>`<div class="slot"><b>${i+1}</b>${esc(stepText(s))}</div>`).join('')}</div>
+    ${rd.msg&&!rd.done?`<div class="fb ${rd.msg===t.rYes?'good':'soft'}">${esc(rd.msg)}</div>`:''}
+    <div class="opts">${remain.map(s=>`<button class="step ${rd.wrong>=2&&exp&&s.idx===exp.idx?'hint':''}" data-act="place" data-i="${s.idx}">${esc(stepText(s))}</button>`).join('')}</div>
+    ${rd.done?`<div class="center"><button class="btn big primary" data-act="next">${t.next} →</button></div>`:''}
+  </section>`;
+}
+
+/* ---------- CAREGIVER: analytics ---------- */
+function statOf(es,from,to){
+  const n=es.length;
+  if(!n)return {n:0,from,to,score:null};
+  const acc=avg(es.map(e=>e.ok))*100,rt=avg(es.map(e=>e.rt))/1000;
+  const speed=clamp((10-rt)/8*100,0,100);
+  const per={};GAMES.forEach(g=>{const ge=es.filter(e=>e.g===g);per[g]=ge.length?{n:ge.length,acc:Math.round(avg(ge.map(e=>e.ok))*100),rt:avg(ge.map(e=>e.rt))/1000}:null;});
+  return {n,from,to,acc:Math.round(acc),rt,score:Math.round(.7*acc+.3*speed),
+    sessions:new Set(es.map(e=>e.s)).size,days:new Set(es.map(e=>new Date(e.t).toDateString())).size,per};
+}
+function weekly(){
+  if(!db.log.length)return [];
+  const now=Date.now(),oldest=Math.min.apply(null,db.log.map(e=>e.t));
+  const k=clamp(Math.ceil((now-oldest)/(7*DAY)),1,8),out=[];
+  for(let i=k-1;i>=0;i--){const from=now-(i+1)*7*DAY,to=now-i*7*DAY;out.push(statOf(db.log.filter(e=>e.t>=from&&e.t<to),from,to));}
+  out.forEach((w,i)=>w.label='Week '+(i+1));
+  return out;
+}
+function analyse(){
+  const weeks=weekly(),elig=weeks.filter(w=>w.n>=10);
+  const r={weeks,elig,level:'none'};
+  if(elig.length<2){r.latest=elig[elig.length-1]||null;return r;}
+  const latest=elig[elig.length-1],prev=elig.slice(0,-1);
+  r.latest=latest;r.base=Math.round(avg(prev.map(w=>w.score)));r.baseRt=avg(prev.map(w=>w.rt));r.baseAcc=Math.round(avg(prev.map(w=>w.acc)));
+  r.drop=r.base-latest.score;r.rtChange=(latest.rt-r.baseRt)/r.baseRt;
+  r.level=r.drop>=15?'decline':r.drop>=8?'dip':'steady';
+  return r;
+}
+function alertInfo(a){
+  const rtTxt=a.rtChange>=.2?`, and answers are about ${Math.round(a.rtChange*100)}% slower`:'';
+  if(a.level==='decline')return {cls:'decline',title:'Decline pattern noticed',text:`The engagement score fell ${a.drop} points (${a.base} → ${a.latest.score}) compared with the earlier weeks${rtTxt}. This pattern is worth mentioning to a doctor. One week is not a diagnosis — illness, poor sleep or new medicines can all affect how someone plays.`};
+  if(a.level==='dip')return {cls:'dip',title:'A slight dip this week',text:`The score is ${a.drop} points below earlier weeks (${a.base} → ${a.latest.score})${rtTxt}. Keep an eye on the next week before drawing conclusions.`};
+  if(a.level==='steady')return {cls:'steady',title:'Steady — no decline pattern',text:`This week's score (${a.latest.score}) is in line with earlier weeks (${a.base}).`};
+  return {cls:'none',title:'Building a baseline',text:'Memoria needs at least two weeks with some activity (10 or more answers a week) before it can compare patterns. Keep playing, or load the fictional three-week demo history to see how alerts look.'};
+}
+function lineChart(pts,o){
+  const W=640,H=250,L=46,R=24,Tp=22,B=o.sub?54:38,n=pts.length;
+  const X=i=>n===1?L+(W-L-R)/2:L+(W-L-R)*i/(n-1);
+  const Y=v=>Tp+(H-Tp-B)*(1-(v-o.min)/(o.max-o.min));
+  let s=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.aria)}">`;
+  for(let k=0;k<=4;k++){const v=o.min+(o.max-o.min)*k/4;s+=`<line class="grid" x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${L-8}" y="${Y(v)+4}" text-anchor="end">${Math.round(v*10)/10}${o.unit||''}</text>`;}
+  if(o.alert!=null&&o.alert>=o.min)s+=`<line class="al" x1="${L}" x2="${W-R}" y1="${Y(o.alert)}" y2="${Y(o.alert)}"/><text class="alt" x="${W-R}" y="${Y(o.alert)-6}" text-anchor="end">Alert line</text>`;
+  const v=pts.map((p,i)=>p.y==null?null:[X(i),Y(p.y)]).filter(Boolean);
+  if(v.length>1)s+=`<polyline class="ln" points="${v.map(p=>p.join(',')).join(' ')}"/>`;
+  pts.forEach((p,i)=>{
+    if(p.y!=null)s+=`<circle class="pt" cx="${X(i)}" cy="${Y(p.y)}" r="6"/><text class="val" x="${X(i)}" y="${Y(p.y)-12}" text-anchor="middle">${o.fmt?o.fmt(p.y):p.y}</text>`;
+    s+=`<text x="${X(i)}" y="${H-B+20}" text-anchor="middle">${esc(p.x)}</text>`;
+    if(o.sub&&n<=6)s+=`<text x="${X(i)}" y="${H-B+36}" text-anchor="middle" style="font-size:11px">${esc(p.sub||'')}</text>`;
+  });
+  return s+'</svg>';
+}
+
+/* ---------- CAREGIVER: weekly summary text ---------- */
+function summaryText(a){
+  const L=[];const lat=a.latest;
+  L.push('MEMORIA — WEEKLY SUMMARY');
+  L.push(`Patient: ${db.patient.name}`);
+  if(!lat){L.push('','No activity recorded yet.');}
+  else{
+    L.push(`Period: ${fmtD(lat.from)} – ${fmtD(lat.to)}`);
+    const ai=alertInfo(a);L.push(`Status: ${ai.title}`,'');
+    L.push(`THIS WEEK (${lat.label})`);
+    L.push(`• Sessions: ${lat.sessions} on ${lat.days} day${lat.days===1?'':'s'}`);
+    L.push(`• Answers recorded: ${lat.n}`);
+    L.push(`• Accuracy: ${lat.acc}%`);
+    L.push(`• Average response time: ${lat.rt.toFixed(1)} s`);
+    L.push(`• Engagement score: ${lat.score} / 100`,'');
+    L.push('BY ACTIVITY');
+    GAMES.forEach(g=>{const p=lat.per[g];L.push(`• ${GN[g]}: ${p?`${p.acc}% correct, ${p.rt.toFixed(1)} s average (${p.n} answers)`:'not played'}`);});
+    L.push('');
+    if(a.weeks.length>1){L.push('TREND');a.weeks.forEach(w=>L.push(`• ${w.label} (${fmtD(w.from)}–${fmtD(w.to)}): ${w.score==null?'no activity':`score ${w.score}, accuracy ${w.acc}%, ${w.rt.toFixed(1)} s`}`));L.push('');}
+    L.push('NOTE FOR THE DOCTOR');L.push(ai.text);
+  }
+  L.push('','Memoria is an engagement and monitoring tool, not a medical device. It does not diagnose or treat dementia. The engagement score = 70% accuracy + 30% speed on a 0–100 scale.');
+  return L.join('\n');
+}
+
+/* ---------- CAREGIVER: rendering ---------- */
+function renderCaregiver(){
+  const tabs=[['overview','Overview'],['summary','Weekly summary'],['family','Family content'],['settings','Settings']];
+  const head=`<div class="tabs" role="group" aria-label="Caregiver sections">${tabs.map(([k,l])=>`<button data-act="tab" data-tab="${k}" aria-pressed="${view.tab===k}">${l}</button>`).join('')}</div>`;
+  let body='';
+  if(view.tab==='overview')body=cOverview();
+  else if(view.tab==='summary')body=cSummary();
+  else if(view.tab==='family')body=cFamily();
+  else body=cSettings();
+  app.innerHTML=head+body;
+}
+function cOverview(){
+  const a=analyse(),ai=alertInfo(a),lat=a.latest;
+  if(!db.log.length)return `<div class="card center" style="padding:32px"><h2>No activity yet</h2><p class="muted">Let ${esc(db.patient.name)} play a few rounds in the Patient view, or load a fictional three-week history to see how trends and alerts look.</p><div class="row" style="justify-content:center"><button class="btn primary" data-act="demo">Load fictional 3-week history</button><button class="btn" data-act="mode" data-mode="patient">Go to patient view</button></div></div>`;
+  const d=(v,b,suf)=>b==null?'':`<div class="d">${v-b>=0?'+':'−'}${Math.abs(Math.round((v-b)*10)/10)}${suf} vs earlier weeks</div>`;
+  const stats=lat?`<div class="stats">
+    <div class="stat"><div class="k">Engagement score</div><div class="v">${lat.score}</div>${d(lat.score,a.base,'')}</div>
+    <div class="stat"><div class="k">Accuracy</div><div class="v">${lat.acc}%</div>${d(lat.acc,a.baseAcc,'%')}</div>
+    <div class="stat"><div class="k">Avg response time</div><div class="v">${lat.rt.toFixed(1)}s</div>${d(Math.round(lat.rt*10)/10,a.baseRt!=null?Math.round(a.baseRt*10)/10:null,'s')}</div>
+    <div class="stat"><div class="k">Sessions · ${lat.label}</div><div class="v">${lat.sessions}</div><div class="d">on ${lat.days} day${lat.days===1?'':'s'}</div></div>
+  </div>`:'';
+  const ws=a.weeks;
+  const sc=lineChart(ws.map(w=>({x:w.label,sub:fmtD(w.from)+'–'+fmtD(w.to),y:w.score})),{min:0,max:100,alert:a.base!=null?a.base-15:null,aria:'Weekly engagement score',sub:true});
+  const maxRt=Math.max(10,Math.ceil(Math.max.apply(null,ws.filter(w=>w.n).map(w=>w.rt))+1));
+  const rtc=lineChart(ws.map(w=>({x:w.label,sub:fmtD(w.from)+'–'+fmtD(w.to),y:w.n?Math.round(w.rt*10)/10:null})),{min:0,max:maxRt,unit:'s',fmt:v=>v+'s',aria:'Average response time per week',sub:true});
+  const tbl=`<div class="scroll"><table><thead><tr><th>Activity</th>${ws.map(w=>`<th>${w.label}</th>`).join('')}<th>Level now</th></tr></thead><tbody>${GAMES.map(g=>`<tr><td><b>${GN[g]}</b></td>${ws.map(w=>`<td>${w.n&&w.per[g]?w.per[g].acc+'%':'—'}</td>`).join('')}<td>${db.levels[g]||1} of 3</td></tr>`).join('')}</tbody></table></div>`;
+  return `<div class="banner ${ai.cls}" role="status"><h2>${ai.title}</h2><p style="margin:0">${ai.text}</p></div>${stats}
+    <div class="charts"><div class="card"><h2>Engagement score by week</h2><p class="muted small" style="margin:0 0 6px">0–100 · accuracy and speed combined${a.base!=null?' · dashed line = 15 points below earlier weeks':''}</p>${sc}</div>
+    <div class="card"><h2>Average response time</h2><p class="muted small" style="margin:0 0 6px">Slower answers can be an early sign worth noticing</p>${rtc}</div></div>
+    <div class="card"><h2>Accuracy by activity</h2><p class="muted small" style="margin:0 0 6px">Difficulty adjusts quietly: 85%+ correct and quick moves up a level, under 55% or very slow moves down.</p>${tbl}</div>
+    <p class="muted small">Support, not diagnosis. Scores describe play on this device, not a clinical measurement.</p>`;
+}
+function cSummary(){
+  const a=analyse();
+  return `<div class="card"><h2>Weekly summary to show a doctor</h2><p class="muted">A plain-text page you can copy into a message or print and carry to a clinic.</p>
+    <div class="paper" id="summaryBox">${esc(summaryText(a))}</div>
+    <div class="row no-print"><button class="btn primary" data-act="copy">Copy summary</button><button class="btn" data-act="print">Print</button></div></div>`;
+}
+function cFamily(){
+  const ppl=db.people.map(p=>`<div class="person"><img src="${p.photo}" alt="${esc(p.name)}"><div><b>${esc(p.name)}</b><span class="muted small">${esc(p.rel||'')}${p.demo?' · sample':''}</span><br><button class="btn sm danger" style="margin-top:6px" data-act="delperson" data-id="${p.id}">Remove</button></div></div>`).join('');
+  const rts=db.routines.map(r=>`<div class="rl"><b>${esc(r.title)}</b><ol>${r.steps.map(s=>`<li>${esc(s.t)}</li>`).join('')}</ol><button class="btn sm danger" data-act="delroutine" data-id="${r.id}">Remove</button></div>`).join('');
+  return `<div class="card"><h2>People</h2><p class="muted">Every activity starts from what the patient already knows. Real photos work best; the sample people are illustrations.</p>
+    <div class="people">${ppl||'<p class="muted">No people yet.</p>'}</div>
+    <h3>Add a person</h3>
+    <div class="row" style="align-items:flex-start">
+      <img class="prev" id="photoPrev" src="${draft.photo||placeholderAvatar(draft.pname||'New')}" alt="Photo preview">
+      <div style="flex:1;min-width:220px">
+        <div class="two"><div class="field"><label for="pname">Name</label><input type="text" id="pname" data-draft="pname" value="${esc(draft.pname||'')}" placeholder="e.g. Rohan"></div>
+        <div class="field"><label for="prel">Relationship</label><input type="text" id="prel" data-draft="prel" value="${esc(draft.prel||'')}" placeholder="e.g. Son"></div></div>
+        <div class="row"><label class="btn" for="photoIn">Choose photo</label><input id="photoIn" type="file" accept="image/*" style="position:absolute;width:1px;height:1px;opacity:0"><button class="btn primary" data-act="addperson">Add person</button></div>
+        <p class="muted small" style="margin:8px 0 0">Photos are shrunk and kept on this device only. Without a photo, a friendly placeholder is used.</p>
+      </div></div></div>
+    <div class="card"><h2>Daily routines</h2><p class="muted">Used in the “My day” game: the patient puts the steps in order.</p>${rts||'<p class="muted">No routines yet.</p>'}
+    <h3>Add a routine</h3>
+    <div class="field"><label for="rtitle">Title</label><input type="text" id="rtitle" data-draft="rtitle" value="${esc(draft.rtitle||'')}" placeholder="e.g. Evening prayers"></div>
+    <div class="field"><label for="rsteps">Steps — one per line, at least 3, in the right order</label><textarea id="rsteps" data-draft="rsteps" placeholder="Wash hands&#10;Light the lamp&#10;Sit down to pray">${esc(draft.rsteps||'')}</textarea></div>
+    <button class="btn primary" data-act="addroutine">Add routine</button></div>`;
+}
+function cSettings(){
+  const hasHi=!!pickVoice('hi'),hasEn=!!pickVoice('en'),l=db.patient.lang;
+  const vs=('speechSynthesis' in window)?((l==='hi'&&!hasHi)?'This device has no Hindi voice installed, so prompts are shown as text only (or read in a default voice). Installing a Hindi text-to-speech voice in the device settings fixes this.':(l==='en'&&!hasEn?'No English voice found on this device; prompts will be shown as text.':'A matching voice is available on this device.')):'This browser has no text-to-speech; prompts are shown as text.';
+  return `<div class="card"><h2>Patient</h2>
+    <div class="field" style="max-width:360px"><label for="patname">Name shown on the home screen</label><input type="text" id="patname" value="${esc(db.patient.name)}"></div>
+    <div class="field"><label>Language for prompts and buttons</label><div class="seg" style="align-self:flex-start" role="group" aria-label="Language"><button data-act="lang" data-l="en" aria-pressed="${l==='en'}">English</button><button data-act="lang" data-l="hi" aria-pressed="${l==='hi'}">हिन्दी</button></div></div>
+    <div class="row"><button class="btn" data-act="voice" aria-pressed="${db.patient.voice}">${db.patient.voice?'🔈 Spoken prompts: on':'🔇 Spoken prompts: off'}</button><button class="btn" data-act="testvoice">Test voice</button></div>
+    <p class="muted small">${vs}</p></div>
+  <div class="card"><h2>Demo &amp; data</h2><p class="muted">The demo history is fictional: three weeks of play with a gradual decline, so you can see the trend chart and decline alert. It replaces any existing activity history.</p>
+    <div class="row"><button class="btn primary" data-act="demo">Load fictional 3-week history</button>
+    <button class="btn danger" data-act="clearlog">${armed.clearlog?'Tap again to confirm':'Clear activity history'}</button>
+    <button class="btn danger" data-act="reset">${armed.reset?'Tap again to confirm':'Reset everything'}</button></div>
+    <p class="muted small">In this prototype everything is stored in this browser only. The full version would use Firebase, with consent and data protection for family photos and health-related data.</p></div>`;
+}
+
+/* ---------- demo data: three fictional weeks (scores land at 82 → 78 → 61) ---------- */
+function loadDemo(){
+  const rand=mulberry32(2026),now=Date.now(),log=[];let sc=0;
+  const W=[{i:2,days:[0,1,2,4,5,6],N:48,ok:42,rt:4.4,lv:2},{i:1,days:[0,1,2,4,5,6],N:48,ok:40,rt:4.8,lv:2},{i:0,days:[0,1,3,4,6],N:40,ok:27,rt:6.3,lv:1}];
+  W.forEach(w=>{
+    const flags=shuffle(Array.from({length:w.N},(_,k)=>k<w.ok?1:0),rand);
+    let noise=Array.from({length:w.N},()=>rand()*.7-.35);const m=avg(noise);noise=noise.map(x=>x-m);
+    const per=w.N/(w.days.length*2);let a=0;
+    w.days.forEach(j=>{[.62,.3].forEach(frac=>{
+      const base=now-w.i*7*DAY-j*DAY-frac*DAY,g=GAMES[sc%3],sid='demo'+sc;sc++;
+      for(let k=0;k<per&&a<w.N;k++,a++)log.push({t:Math.round(base+k*25000),g,ok:flags[a],rt:Math.round(w.rt*1000*(1+noise[a])),lv:w.lv,s:sid});
+    });});
+  });
+  log.sort((x,y)=>x.t-y.t);db.log=log;db.levels={recall:1,pairs:1,routine:1};save();
+}
+
+/* ---------- photo handling ---------- */
+function fileToPhoto(file){
+  return new Promise((res,rej)=>{
+    const fr=new FileReader();
+    fr.onload=()=>{const img=new Image();
+      img.onload=()=>{const side=Math.min(img.width,img.height),c=document.createElement('canvas');c.width=c.height=320;
+        c.getContext('2d').drawImage(img,(img.width-side)/2,(img.height-side)/2,side,side,0,0,320,320);res(c.toDataURL('image/jpeg',.82));};
+      img.onerror=rej;img.src=fr.result;};
+    fr.onerror=rej;fr.readAsDataURL(file);
+  });
+}
+async function copyText(txt){
+  try{await navigator.clipboard.writeText(txt);return true;}
+  catch(e){try{const ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();const ok=document.execCommand('copy');ta.remove();return ok;}catch(e2){return false;}}
+}
+
+/* ---------- main render ---------- */
+function render(){
+  document.querySelectorAll('header .seg button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===view.mode)));
+  document.documentElement.lang=(view.mode==='patient'&&db.patient.lang==='hi')?'hi':'en';
+  if(view.mode==='patient')renderPatient();else renderCaregiver();
+}
+
+/* ---------- events ---------- */
+const H={
+  mode(el){clearTimers();try{speechSynthesis.cancel();}catch(e){}G=null;view.mode=el.dataset.mode;view.screen='home';render();window.scrollTo(0,0);},
+  tab(el){clearTimers();armed.clearlog=armed.reset=false;view.tab=el.dataset.tab;render();},
+  home(){G=null;go('home');},
+  play(el){const g=el.dataset.g;if(g==='recall')startRecall();else if(g==='pairs')startPairs();else startRoutine();},
+  again(){if(!G)return go('home');({recall:startRecall,pairs:startPairs,routine:startRoutine})[G.g]();},
+  say(){say(view.prompt,true);},
+  voice(){db.patient.voice=!db.patient.voice;save();if(!db.patient.voice){try{speechSynthesis.cancel();}catch(e){}}render();},
+  pick(el){
+    const q=G.qs[G.i];if(q.done)return;const t=tt();
+    q.done=true;q.pick=el.dataset.id;q.ok=q.pick===q.p.id;
+    logAnswer('recall',q.ok,Date.now()-q.t0);if(q.ok)G.ok++;
+    q.msg=q.ok?t.yesName(q.p.name):t.softName(q.p.name);render();say(q.msg);
+  },
+  next(){
+    if(G.g==='recall'){G.i++;if(G.i>=G.qs.length)return finishGame(G.ok/G.qs.length);G.qs[G.i].t0=Date.now();render();say(tt().who);}
+    else if(G.g==='routine'){G.r++;if(G.r>=G.rounds.length)return finishGame(G.att?G.ok/G.att:1);G.rounds[G.r].t0=Date.now();render();say(tt().rFirst);}
+  },
+  pstart(){if(G&&G.phase==='preview')beginPlay();},
+  flip(el){
+    if(!G||G.phase!=='play'||G.lock)return;const i=+el.dataset.i,t=tt();
+    if(G.matched.has(i)||G.flipped.includes(i))return;
+    G.flipped.push(i);say(G.cards[i].name);
+    if(G.flipped.length===2){
+      const [a,b]=G.flipped,ok=G.cards[a].pid===G.cards[b].pid;
+      G.att++;logAnswer('pairs',ok,Date.now()-G.t0);
+      if(ok){G.ok++;G.matched.add(a);G.matched.add(b);G.flipped=[];G.msg=t.pairsMatch;G.t0=Date.now();say(t.pairsMatch);
+        if(G.matched.size===G.cards.length){G.phase='won';later(()=>finishGame(G.ok/G.att),1700);}}
+      else{G.msg=t.pairsTry;G.lock=true;later(()=>{G.flipped=[];G.lock=false;G.t0=Date.now();render();},1500);}
+    }
+    render();
+  },
+  place(el){
+    const rd=G.rounds[G.r];if(rd.done)return;const t=tt(),exp=rd.steps[rd.placed.length],ok=+el.dataset.i===exp.idx;
+    G.att++;logAnswer('routine',ok,Date.now()-rd.t0);
+    if(ok){G.ok++;rd.placed.push(exp);rd.wrong=0;rd.t0=Date.now();
+      if(rd.placed.length===rd.steps.length){rd.done=true;rd.msg=t.rDone;render();say(t.rDone);return;}
+      rd.msg=t.rYes;render();say(t.rYes+' '+t.rNext);return;}
+    rd.wrong++;rd.msg=t.rSoft;render();say(t.rSoft);
+  },
+  lang(el){db.patient.lang=el.dataset.l;save();render();},
+  testvoice(){say(db.patient.lang==='hi'?'नमस्ते! मैं मेमोरिया हूँ।':'Hello! I am Memoria.',true);},
+  demo(){loadDemo();view.tab='overview';render();toast('Fictional three-week history loaded');},
+  clearlog(){if(armed.clearlog){armed.clearlog=false;db.log=[];db.levels={recall:1,pairs:1,routine:1};save();toast('Activity history cleared');render();}else{armed.clearlog=true;render();later(()=>{armed.clearlog=false;if(view.mode==='caregiver')render();},4000);}},
+  reset(){if(armed.reset){armed.reset=false;db=seed();save();toast('Everything reset');render();}else{armed.reset=true;render();later(()=>{armed.reset=false;if(view.mode==='caregiver')render();},4000);}},
+  async copy(){toast(await copyText(summaryText(analyse()))?'Summary copied':'Could not copy — select the text and copy it manually');},
+  print(){try{window.print();}catch(e){toast('Printing is not available here — use Copy instead');}},
+  delperson(el){db.people=db.people.filter(p=>p.id!==el.dataset.id);save();render();},
+  delroutine(el){db.routines=db.routines.filter(r=>r.id!==el.dataset.id);save();render();},
+  addperson(){
+    const name=(draft.pname||'').trim();if(!name)return toast('Please enter a name');
+    db.people.push({id:uid(),name,rel:(draft.prel||'').trim(),photo:draft.photo||placeholderAvatar(name)});
+    draft.pname=draft.prel=draft.photo='';save();render();toast(name+' added');
+  },
+  addroutine(){
+    const title=(draft.rtitle||'').trim(),steps=(draft.rsteps||'').split('\n').map(s=>s.trim()).filter(Boolean);
+    if(!title)return toast('Please enter a title');if(steps.length<3)return toast('Add at least 3 steps, one per line');
+    db.routines.push({id:uid(),title,steps:steps.map(t=>({t}))});draft.rtitle=draft.rsteps='';save();render();toast('Routine added');
+  }
+};
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act]');if(!el||el.disabled)return;
+  const f=H[el.dataset.act];if(f)f(el);
+});
+document.addEventListener('input',e=>{const k=e.target.dataset&&e.target.dataset.draft;if(k){draft[k]=e.target.value;if(k==='pname'&&!draft.photo){const p=$('#photoPrev');if(p)p.src=placeholderAvatar(draft.pname||'New');}}});
+document.addEventListener('change',async e=>{
+  if(e.target.id==='photoIn'&&e.target.files&&e.target.files[0]){
+    try{draft.photo=await fileToPhoto(e.target.files[0]);const p=$('#photoPrev');if(p)p.src=draft.photo;}catch(err){toast('Could not read that photo');}
+  }
+  if(e.target.id==='patname'){db.patient.name=e.target.value.trim()||'Friend';save();toast('Name saved');}
+});
+
+render();
+})();
+</script>
+</body>
+</html>
