@@ -1,0 +1,11 @@
+node_modules/
+coverage/
+.DS_Store
+npm-debug.log*
+server/.env
+server/prisma/dev.db
+server/prisma/dev.db-journal
+server/uploads/
+client/dist/
+server/dist/
+*.tsbuildinfo

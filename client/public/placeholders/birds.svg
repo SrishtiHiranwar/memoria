@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="Two birds on a branch">
+  <rect width="640" height="420" fill="#dceaf0"/>
+  <circle cx="500" cy="95" r="42" fill="#f6d77b"/>
+  <path d="M0 345Q180 310 340 340T640 330" fill="none" stroke="#79644c" stroke-width="22" stroke-linecap="round"/>
+  <g fill="#6f9c79">
+    <ellipse cx="245" cy="230" rx="70" ry="48"/><circle cx="298" cy="195" r="35"/>
+    <ellipse cx="420" cy="248" rx="62" ry="42"/><circle cx="466" cy="218" r="31"/>
+  </g>
+  <g fill="#e4a36c"><path d="m326 190 38 12-36 14Z"/><path d="m493 214 34 11-33 12Z"/></g>
+  <g fill="#20302b"><circle cx="307" cy="188" r="5"/><circle cx="473" cy="211" r="5"/></g>
+</svg>

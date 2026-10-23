@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  // SQLite does not support Prisma enums; application validation restricts this to DOCTOR or PATIENT.
+  role         String
+  patientId    String?   @unique
+  patient      Patient?  @relation("PatientLogin", fields: [patientId], references: [id], onDelete: SetNull)
+  patients     Patient[] @relation("DoctorPatients")
+}
+
+model Patient {
+  id                String    @id @default(cuid())
+  name              String
+  createdByDoctorId String
+  createdByDoctor   User      @relation("DoctorPatients", fields: [createdByDoctorId], references: [id], onDelete: Restrict)
+  user              User?     @relation("PatientLogin")
+  photos            Photo[]
+  stories           Story[]
+  sessions          Session[]
+  alerts            Alert[]
+}
+
+model Photo {
+  id        String   @id @default(cuid())
+  patientId String
+  imageUrl  String
+  caption   String
+  createdAt DateTime @default(now())
+  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+}
+
+model Story {
+  id         String    @id @default(cuid())
+  patientId  String
+  title      String
+  prompt     String
+  // SQLite stores JSON payloads as text; API schemas validate their contents.
+  // Valid lifecycle values are DRAFT, APPROVED, ASSIGNED, and COMPLETED.
+  status     String
+  scenesJson String    @default("[]")
+  createdAt  DateTime  @default(now())
+  approvedAt DateTime?
+  assignedAt DateTime?
+  patient    Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  sessions   Session[]
+}
+
+model Session {
+  id               String    @id @default(cuid())
+  storyId          String
+  patientId        String
+  caregiverPresent Boolean
+  startedAt        DateTime  @default(now())
+  endedAt          DateTime?
+  resultsJson      String?
+  summaryJson      String?
+  story            Story     @relation(fields: [storyId], references: [id], onDelete: Restrict)
+  patient          Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+}
+
+model Alert {
+  id              String    @id @default(cuid())
+  patientId       String
+  createdAt       DateTime  @default(now())
+  acknowledgedAt  DateTime?
+  fallbackShownAt DateTime?
+  patient         Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+}

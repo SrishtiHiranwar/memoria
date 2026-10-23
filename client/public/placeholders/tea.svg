@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="A cup of tea on a table">
+  <rect width="640" height="420" fill="#f3e8d4"/>
+  <rect y="275" width="640" height="145" fill="#b88662"/>
+  <ellipse cx="310" cy="300" rx="145" ry="30" fill="#976d52"/>
+  <path d="M215 155h180l-20 130H235Z" fill="#fffefa" stroke="#527363" stroke-width="10"/>
+  <path d="M395 185h38a44 44 0 0 1 0 88h-47" fill="none" stroke="#527363" stroke-width="12"/>
+  <ellipse cx="305" cy="160" rx="90" ry="22" fill="#9b6842"/>
+  <path d="M270 130q-18-40 8-55M320 130q-18-40 8-55M365 132q-18-38 8-53" fill="none" stroke="#fffefa" stroke-width="8" stroke-linecap="round"/>
+</svg>

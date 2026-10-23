@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="A window looking out at green trees">
+  <rect width="640" height="420" fill="#f3e8d4"/>
+  <rect x="100" y="35" width="440" height="335" rx="10" fill="#fffefa" stroke="#8a705a" stroke-width="20"/>
+  <rect x="125" y="60" width="390" height="285" fill="#cce5ed"/>
+  <circle cx="440" cy="108" r="32" fill="#f6d77b"/>
+  <path d="M125 270q85-135 175 0t215-15v90H125Z" fill="#8fbd8f"/>
+  <g fill="#6f9c79"><circle cx="215" cy="185" r="48"/><circle cx="215" cy="230" r="60"/><circle cx="335" cy="195" r="55"/><circle cx="365" cy="245" r="56"/></g>
+  <path d="M320 60v285M125 205h390" stroke="#8a705a" stroke-width="16"/>
+</svg>

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="Colorful flowers in a garden">
+  <rect width="640" height="420" fill="#d9eddf"/>
+  <circle cx="520" cy="90" r="48" fill="#f6d77b"/>
+  <path d="M0 290Q150 220 320 292T640 270V420H0Z" fill="#8fbd8f"/>
+  <path d="M0 340Q180 270 350 340T640 320V420H0Z" fill="#6f9c79"/>
+  <g fill="#f6f4ef" stroke="#d18d9b" stroke-width="8">
+    <circle cx="140" cy="260" r="28"/><circle cx="260" cy="300" r="26"/>
+    <circle cx="425" cy="255" r="30"/><circle cx="535" cy="315" r="25"/>
+  </g>
+  <g stroke="#527363" stroke-width="8"><path d="M140 288v72"/><path d="M260 326v50"/><path d="M425 285v73"/><path d="M535 340v50"/></g>
+</svg>
